@@ -1,0 +1,21 @@
+node_modules
+.DS_Store
+.env
+.push-to-github
+
+# Aggiunti automaticamente da push-to-github (common, node)
+.env.*
+!.env.example
+Thumbs.db
+*.log
+*.local
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+.next/
+.nuxt/
+.output/
+.svelte-kit/

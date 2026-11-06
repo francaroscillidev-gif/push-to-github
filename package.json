@@ -1,0 +1,34 @@
+{
+  "name": "push-to-github",
+  "version": "1.0.0",
+  "description": "CLI interattiva e automatizzata per creare repo su GitHub e pubblicare/aggiornare progetti in un click",
+  "main": "src/index.js",
+  "bin": {
+    "push-to-github": "./bin/cli.js",
+    "ptg": "./bin/cli.js"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node bin/cli.js",
+    "test": "node bin/cli.js --help"
+  },
+  "keywords": [
+    "git",
+    "github",
+    "automation",
+    "cli",
+    "upload",
+    "push",
+    "repository"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^21.0.2",
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "inquirer": "^12.4.2",
+    "ora": "^8.2.0"
+  }
+}
