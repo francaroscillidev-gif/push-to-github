@@ -22,25 +22,57 @@ export async function getUserOrgs(octokit) {
   }
 }
 
-export async function createRepository(octokit, { name, description = '', isPrivate = false, org = null }) {
-  if (org) {
-    const response = await octokit.repos.createInOrg({
-      org,
-      name,
-      description,
-      private: isPrivate,
-      auto_init: false
-    });
-    return response.data;
-  } else {
-    const response = await octokit.repos.createForAuthenticatedUser({
-      name,
-      description,
-      private: isPrivate,
-      auto_init: false
-    });
-    return response.data;
+/**
+ * Esegue una chiamata API con retry automatico in caso di Secondary Rate Limit
+ */
+export async function withRateLimitRetry(fn, maxRetries = 2, initialDelayMs = 5000) {
+  let attempt = 0;
+  let delay = initialDelayMs;
+
+  while (attempt <= maxRetries) {
+    try {
+      return await fn();
+    } catch (err) {
+      const isRateLimit = err.status === 403 && (
+        (err.message && err.message.includes('secondary rate limit')) ||
+        (err.response && err.response.headers && err.response.headers['retry-after'])
+      );
+
+      if (isRateLimit && attempt < maxRetries) {
+        attempt++;
+        const retryAfterHeader = err.response?.headers?.['retry-after'];
+        const waitTimeMs = retryAfterHeader ? parseInt(retryAfterHeader, 10) * 1000 : delay;
+        console.warn(`\n⚠️ GitHub Secondary Rate Limit rilevato. Attesa di ${Math.round(waitTimeMs / 1000)}s prima di ritentare (tentativo ${attempt}/${maxRetries})...`);
+        await new Promise(res => setTimeout(res, waitTimeMs));
+        delay *= 2; // exponential backoff
+      } else {
+        throw err;
+      }
+    }
   }
+}
+
+export async function createRepository(octokit, { name, description = '', isPrivate = false, org = null }) {
+  return withRateLimitRetry(async () => {
+    if (org) {
+      const response = await octokit.repos.createInOrg({
+        org,
+        name,
+        description,
+        private: isPrivate,
+        auto_init: false
+      });
+      return response.data;
+    } else {
+      const response = await octokit.repos.createForAuthenticatedUser({
+        name,
+        description,
+        private: isPrivate,
+        auto_init: false
+      });
+      return response.data;
+    }
+  });
 }
 
 export async function checkRepositoryExists(octokit, owner, repoName) {
@@ -59,14 +91,16 @@ export async function checkRepositoryExists(octokit, owner, repoName) {
 }
 
 export async function createGitHubRelease(octokit, { owner, repo, tag, name, body }) {
-  const response = await octokit.repos.createRelease({
-    owner,
-    repo,
-    tag_name: tag,
-    name: name || tag,
-    body: body || `Release automatica ${tag}`,
-    draft: false,
-    prerelease: false
+  return withRateLimitRetry(async () => {
+    const response = await octokit.repos.createRelease({
+      owner,
+      repo,
+      tag_name: tag,
+      name: name || tag,
+      body: body || `Release automatica ${tag}`,
+      draft: false,
+      prerelease: false
+    });
+    return response.data;
   });
-  return response.data;
 }

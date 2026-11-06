@@ -26,6 +26,7 @@ import {
 import { scanForSecrets } from './scanner.js';
 import { ensureSmartGitignore } from './gitignore.js';
 import { generateSmartCommitMessage, ensureReadme } from './ai-helper.js';
+import { setupCIWorkflow, setupCommunityTemplates } from './templates.js';
 
 async function promptToken() {
   console.log(chalk.cyan('\n🔑 Configurazione Token GitHub Personal Access (PAT):'));
@@ -68,7 +69,7 @@ export async function handlePush(options = {}) {
   const folderName = path.basename(targetDir);
   const isSilent = Boolean(options.yes);
 
-  console.log(chalk.bold.magenta('\n🚀 Push-to-GitHub CLI Automator (v2.0 Pro)\n'));
+  console.log(chalk.bold.magenta('\n🚀 Push-to-GitHub CLI Automator (v2.1 Enterprise)\n'));
   console.log(chalk.gray(`Cartella progetto: ${targetDir}`));
 
   // 1. Controllo installazione Git
@@ -144,7 +145,7 @@ export async function handlePush(options = {}) {
     spinner.succeed('Repository Git locale inizializzato (branch main).');
   }
 
-  // 5. SMART .gitignore (Adattivo in base allo stack: Node, Python, iOS, Android, ecc.)
+  // 5. SMART .gitignore (Adattivo in base allo stack)
   const gitignoreResult = ensureSmartGitignore(targetDir);
   if (gitignoreResult.created) {
     console.log(chalk.green(`✔ Creato .gitignore su misura per: ${gitignoreResult.detected.join(', ')}`));
@@ -152,12 +153,24 @@ export async function handlePush(options = {}) {
     console.log(chalk.yellow(`✔ Aggiornato .gitignore con regole per: ${gitignoreResult.detected.join(', ')}`));
   }
 
-  // 6. Generazione automatica README se assente
+  // 6. Configurazione CI/CD & Community Templates se richiesto o consigliato
+  if (options.ci) {
+    const ciRes = setupCIWorkflow(targetDir);
+    if (ciRes.created) {
+      console.log(chalk.green('✔ Configurato GitHub Actions CI/CD (.github/workflows/ci.yml)'));
+    }
+  }
+  if (options.community) {
+    setupCommunityTemplates(targetDir, username);
+    console.log(chalk.green('✔ Configurato LICENSE (MIT), Bug Report, Feature Request e PR templates (.github/)'));
+  }
+
+  // 7. Generazione automatica README se assente
   if (!isSilent && ensureReadme(options.name || folderName, options.description || '', targetDir)) {
     console.log(chalk.cyan('📄 Creato template iniziale README.md'));
   }
 
-  // 7. Configurazione Remote & Repository su GitHub
+  // 8. Configurazione Remote & Repository su GitHub
   const remotes = getRemotes(targetDir);
   let remoteUrl = remotes.origin;
   let targetRepoName = options.name || folderName;
@@ -168,7 +181,6 @@ export async function handlePush(options = {}) {
     let description = options.description || '';
 
     if (!isSilent) {
-      // Controllo se l'utente appartiene a organizzazioni
       const orgs = await getUserOrgs(octokit);
       const ownerChoices = [
         { name: `Personale (@${username})`, value: username },
@@ -214,28 +226,14 @@ export async function handlePush(options = {}) {
       isPrivate = answers.visibility === 'private';
     }
 
-    const spinRepo = ora(`Verifica disponibilità repo ${targetOwner}/${targetRepoName}...`).start();
+    const spinRepo = ora(`Verifica repository ${targetOwner}/${targetRepoName}...`).start();
     const existingRepo = await checkRepositoryExists(octokit, targetOwner, targetRepoName);
 
     if (existingRepo) {
       spinRepo.info(chalk.blue(`Il repository ${targetOwner}/${targetRepoName} esiste già su GitHub.`));
-      if (!isSilent) {
-        const { useExisting } = await inquirer.prompt([
-          {
-            type: 'confirm',
-            name: 'useExisting',
-            message: `Vuoi collegare questo progetto locale al repository esistente?`,
-            default: true
-          }
-        ]);
-        if (!useExisting) {
-          console.log(chalk.red('Operazione annullata.'));
-          process.exit(0);
-        }
-      }
       remoteUrl = existingRepo.clone_url;
     } else {
-      spinRepo.text = `Creazione repository ${targetOwner}/${targetRepoName} su GitHub in corso...`;
+      spinRepo.text = `Creazione repository ${targetOwner}/${targetRepoName} su GitHub...`;
       try {
         const newRepo = await createRepository(octokit, {
           name: targetRepoName,
@@ -243,10 +241,14 @@ export async function handlePush(options = {}) {
           isPrivate,
           org: targetOwner !== username ? targetOwner : null
         });
-        spinRepo.succeed(chalk.green(`Repository remoto creato con successo: ${newRepo.html_url}`));
+        spinRepo.succeed(chalk.green(`Repository remoto creato: ${newRepo.html_url}`));
         remoteUrl = newRepo.clone_url;
       } catch (err) {
         spinRepo.fail(chalk.red(`Impossibile creare il repository: ${err.message}`));
+        if (err.message.includes('secondary rate limit')) {
+          console.log(chalk.yellow('\n💡 Suggerimento: GitHub ha limitato temporaneamente la creazione automatica di nuovi repository.'));
+          console.log(chalk.yellow(`Puoi creare il repo vuoto manualmente su https://github.com/new e rilanciare "ptg".\n`));
+        }
         process.exit(1);
       }
     }
@@ -255,14 +257,16 @@ export async function handlePush(options = {}) {
     setRemoteUrl('origin', authenticatedUrl, targetDir);
     console.log(chalk.green(`✔ Remote 'origin' impostato su: ${remoteUrl}`));
   } else {
-    console.log(chalk.cyan(`ℹ Remote 'origin' configurato: ${remoteUrl.replace(/\/\/.*@/, '//')}`));
+    // Se c'è già un remote, estraiamo l'owner e repoName se possibile
+    const cleanOrigin = remoteUrl.replace(/\/\/.*@/, '//');
+    console.log(chalk.cyan(`ℹ Remote 'origin' configurato: ${cleanOrigin}`));
     if (remoteUrl.startsWith('https://') && !remoteUrl.includes('@')) {
       const authenticatedUrl = remoteUrl.replace('https://', `https://${encodeURIComponent(token)}@`);
       setRemoteUrl('origin', authenticatedUrl, targetDir);
     }
   }
 
-  // 8. Messaggio di commit (con supporto Smart AI generator)
+  // 9. Messaggio di commit (con supporto Smart AI generator)
   let commitMessage = options.message;
   if (!commitMessage) {
     const suggestedMessage = generateSmartCommitMessage(targetDir);
@@ -281,7 +285,7 @@ export async function handlePush(options = {}) {
     }
   }
 
-  // 9. Commit delle modifiche
+  // 10. Commit delle modifiche
   const spinCommit = ora('Preparazione e commit delle modifiche...').start();
   try {
     const committed = stageAndCommit(commitMessage, targetDir);
@@ -295,14 +299,14 @@ export async function handlePush(options = {}) {
     process.exit(1);
   }
 
-  // 10. Push su GitHub con auto-reconciliation (pull --rebase automatico se ci sono divergenze)
+  // 11. Push su GitHub con auto-reconciliation
   const currentBranch = getCurrentBranch(targetDir) || 'main';
   const spinPush = ora(`Caricamento (push) su GitHub (${currentBranch})...`).start();
   try {
     pushToRemote('origin', currentBranch, targetDir);
     spinPush.succeed(chalk.green(`Push completato con successo sul branch '${currentBranch}'!`));
 
-    // 11. GitHub Release & Tag opzionale se specificato
+    // 12. GitHub Release & Tag opzionale
     if (options.release) {
       const tagName = options.release.startsWith('v') ? options.release : `v${options.release}`;
       const spinRel = ora(`Creazione Release e Tag ${tagName}...`).start();
@@ -326,7 +330,11 @@ export async function handlePush(options = {}) {
     console.log(chalk.cyan(`🔗 Repository: ${cleanUrl}\n`));
   } catch (err) {
     spinPush.fail(chalk.red(`Errore durante il push su GitHub: ${err.message}`));
-    console.log(chalk.dim('\nConsiglio: assicurati che il token abbia i permessi "repo".'));
+    if (err.message.includes('Repository not found')) {
+      console.log(chalk.yellow('\n💡 Se il repository non esiste ancora su GitHub, crealo prima su:'));
+      console.log(chalk.bold.cyan(`https://github.com/new?name=${targetRepoName}`));
+      console.log(chalk.yellow('Poi rilancia semplicemente: ptg -y\n'));
+    }
     process.exit(1);
   }
 }
