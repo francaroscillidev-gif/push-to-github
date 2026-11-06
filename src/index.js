@@ -21,12 +21,14 @@ import {
   stageAndCommit,
   setRemoteUrl,
   pushToRemote,
-  createAndPushTag
+  createAndPushTag,
+  getDetailedStatus
 } from './git.js';
 import { scanForSecrets } from './scanner.js';
 import { ensureSmartGitignore } from './gitignore.js';
 import { generateSmartCommitMessage, ensureReadme } from './ai-helper.js';
 import { setupCIWorkflow, setupCommunityTemplates } from './templates.js';
+import { openBrowser } from './browser.js';
 
 async function promptToken() {
   console.log(chalk.cyan('\n🔑 Configurazione Token GitHub Personal Access (PAT):'));
@@ -64,12 +66,49 @@ export async function handleLogout() {
   console.log(chalk.green('✔ Sessione GitHub eliminata con successo.'));
 }
 
+export function handleStatus(options = {}) {
+  const targetDir = options.dir ? path.resolve(options.dir) : process.cwd();
+  console.log(chalk.bold.magenta('\n📊 Stato Repository Locale & GitHub\n'));
+  console.log(chalk.gray(`Cartella: ${targetDir}`));
+
+  const status = getDetailedStatus(targetDir);
+  if (!status.isRepo) {
+    console.log(chalk.yellow('⚠️ La cartella non è ancora un repository Git.'));
+    console.log(chalk.dim('Lancia "ptg" per inizializzarla e pubblicarla in un clic.\n'));
+    return;
+  }
+
+  console.log(chalk.cyan(`Branch attivo: `) + chalk.bold.white(status.branch));
+  console.log(chalk.cyan(`Ultimo commit: `) + chalk.dim(status.lastCommit));
+
+  const remotes = Object.entries(status.remotes);
+  if (remotes.length > 0) {
+    console.log(chalk.cyan('Remote configurati:'));
+    remotes.forEach(([name, url]) => {
+      console.log(`  - ${chalk.bold(name)}: ${url.replace(/\/\/.*@/, '//')}`);
+    });
+  } else {
+    console.log(chalk.yellow('Nessun remote collegato.'));
+  }
+
+  if (status.changedFilesCount === 0) {
+    console.log(chalk.green('\n✔ Albero di lavoro pulito (nessuna modifica non salvata).\n'));
+  } else {
+    console.log(chalk.yellow(`\n⚠️ Ci sono ${status.changedFilesCount} file con modifiche non committate:`));
+    status.changedFiles.slice(0, 5).forEach(f => console.log(chalk.dim(`  ${f}`)));
+    if (status.changedFilesCount > 5) {
+      console.log(chalk.dim(`  ...e altri ${status.changedFilesCount - 5} file`));
+    }
+    console.log(chalk.cyan(`\nEsegui ${chalk.bold('ptg')} o ${chalk.bold('ptg -a -y')} per committare e caricare tutto.\n`));
+  }
+}
+
 export async function handlePush(options = {}) {
   const targetDir = options.dir ? path.resolve(options.dir) : process.cwd();
   const folderName = path.basename(targetDir);
   const isSilent = Boolean(options.yes);
 
-  console.log(chalk.bold.magenta('\n🚀 Push-to-GitHub CLI Automator (v2.1 Enterprise)\n'));
+  console.log(chalk.bold.magenta('\n🚀 Push-to-GitHub CLI Automator (v2.2 Enterprise)\n'));
   console.log(chalk.gray(`Cartella progetto: ${targetDir}`));
 
   // 1. Controllo installazione Git
@@ -153,7 +192,7 @@ export async function handlePush(options = {}) {
     console.log(chalk.yellow(`✔ Aggiornato .gitignore con regole per: ${gitignoreResult.detected.join(', ')}`));
   }
 
-  // 6. Configurazione CI/CD & Community Templates se richiesto o consigliato
+  // 6. Configurazione CI/CD & Community Templates se richiesto
   if (options.ci) {
     const ciRes = setupCIWorkflow(targetDir);
     if (ciRes.created) {
@@ -246,8 +285,10 @@ export async function handlePush(options = {}) {
       } catch (err) {
         spinRepo.fail(chalk.red(`Impossibile creare il repository: ${err.message}`));
         if (err.message.includes('secondary rate limit')) {
-          console.log(chalk.yellow('\n💡 Suggerimento: GitHub ha limitato temporaneamente la creazione automatica di nuovi repository.'));
-          console.log(chalk.yellow(`Puoi creare il repo vuoto manualmente su https://github.com/new e rilanciare "ptg".\n`));
+          console.log(chalk.yellow('\n💡 GitHub ha limitato temporaneamente la creazione automatica via API.'));
+          const createUrl = `https://github.com/new?name=${encodeURIComponent(targetRepoName)}&description=${encodeURIComponent(description)}`;
+          console.log(chalk.cyan(`Apertura pagina per completare con 1 clic: ${createUrl}`));
+          openBrowser(createUrl);
         }
         process.exit(1);
       }
@@ -257,7 +298,6 @@ export async function handlePush(options = {}) {
     setRemoteUrl('origin', authenticatedUrl, targetDir);
     console.log(chalk.green(`✔ Remote 'origin' impostato su: ${remoteUrl}`));
   } else {
-    // Se c'è già un remote, estraiamo l'owner e repoName se possibile
     const cleanOrigin = remoteUrl.replace(/\/\/.*@/, '//');
     console.log(chalk.cyan(`ℹ Remote 'origin' configurato: ${cleanOrigin}`));
     if (remoteUrl.startsWith('https://') && !remoteUrl.includes('@')) {
@@ -331,9 +371,10 @@ export async function handlePush(options = {}) {
   } catch (err) {
     spinPush.fail(chalk.red(`Errore durante il push su GitHub: ${err.message}`));
     if (err.message.includes('Repository not found')) {
-      console.log(chalk.yellow('\n💡 Se il repository non esiste ancora su GitHub, crealo prima su:'));
-      console.log(chalk.bold.cyan(`https://github.com/new?name=${targetRepoName}`));
-      console.log(chalk.yellow('Poi rilancia semplicemente: ptg -y\n'));
+      console.log(chalk.yellow('\n💡 Il repository remoto non esiste ancora su GitHub.'));
+      const fallbackUrl = `https://github.com/new?name=${targetRepoName}`;
+      console.log(chalk.cyan(`Premi "Create repository" nella pagina aperta del browser: ${fallbackUrl}`));
+      openBrowser(fallbackUrl);
     }
     process.exit(1);
   }

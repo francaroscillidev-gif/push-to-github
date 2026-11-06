@@ -97,7 +97,6 @@ export function pullRebase(remoteName = 'origin', branch = 'main', cwd = process
     runGit(`pull --rebase ${remoteName} ${branch}`, cwd);
     return true;
   } catch (err) {
-    // Se fallisce il rebase, facciamo abort per non lasciare lo stato inconsistente
     try {
       runGit('rebase --abort', cwd);
     } catch {
@@ -111,7 +110,6 @@ export function pushToRemote(remoteName = 'origin', branch = 'main', cwd = proce
   try {
     return runGit(`push -u ${remoteName} ${branch}`, cwd);
   } catch (error) {
-    // Se fallisce per non-fast-forward / conflitti di storico remoto, tenta pull --rebase
     if (error.message.includes('non-fast-forward') || error.message.includes('fetch first') || error.message.includes('Updates were rejected')) {
       pullRebase(remoteName, branch, cwd);
       return runGit(`push -u ${remoteName} ${branch}`, cwd);
@@ -127,4 +125,34 @@ export function createAndPushTag(tagName, cwd = process.cwd()) {
     // Tag potrebbe già esistere localmente
   }
   return runGit(`push origin ${tagName}`, cwd);
+}
+
+/**
+ * Ottiene lo status formattato del repository Git per il cruscotto e la visualizzazione
+ */
+export function getDetailedStatus(cwd = process.cwd()) {
+  if (!isGitRepo(cwd)) {
+    return { isRepo: false };
+  }
+
+  const branch = getCurrentBranch(cwd);
+  const remotes = getRemotes(cwd);
+  const statusOutput = runGit('status --porcelain', cwd);
+  const changedFiles = statusOutput ? statusOutput.split('\n').filter(Boolean) : [];
+
+  let lastCommit = 'Nessun commit ancora';
+  try {
+    lastCommit = runGit('log -1 --pretty=format:"%h - %s (%cr)"', cwd);
+  } catch {
+    // repository vuoto
+  }
+
+  return {
+    isRepo: true,
+    branch,
+    remotes,
+    changedFilesCount: changedFiles.length,
+    changedFiles,
+    lastCommit
+  };
 }

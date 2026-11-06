@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { handlePush, handleLogin, handleLogout } from '../src/index.js';
+import { handlePush, handleLogin, handleLogout, handleStatus } from '../src/index.js';
 
 const program = new Command();
 
 program
   .name('push-to-github')
   .description('Automazione intelligente per la creazione e pubblicazione di progetti su GitHub')
-  .version('2.1.0');
+  .version('2.2.0');
 
 program
   .command('push', { isDefault: true })
@@ -24,6 +24,14 @@ program
   .option('--community', 'Genera LICENSE MIT, Issue Templates e PR Template')
   .action((options) => {
     handlePush(options);
+  });
+
+program
+  .command('status')
+  .description('Mostra lo stato locale e di sincronizzazione con GitHub')
+  .option('-d, --dir <path>', 'Percorso della cartella del progetto')
+  .action((options) => {
+    handleStatus(options);
   });
 
 program
