@@ -1,5 +1,11 @@
 # 🚀 push-to-github
 
+[![GitHub license](https://img.shields.io/github/license/francaroscillidev-gif/push-to-github?style=flat-square)](https://github.com/francaroscillidev-gif/push-to-github/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/francaroscillidev-gif/push-to-github?style=flat-square)](https://github.com/francaroscillidev-gif/push-to-github/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/francaroscillidev-gif/push-to-github?style=flat-square)](https://github.com/francaroscillidev-gif/push-to-github/issues)
+[![Node.js CI](https://github.com/francaroscillidev-gif/push-to-github/actions/workflows/ci.yml/badge.svg)](https://github.com/francaroscillidev-gif/push-to-github/actions)
+
+
 Uno strumento CLI basato su Node.js/npm per **automatizzare completamente il processo di creazione e caricamento di qualsiasi progetto su GitHub**.
 
 ---
