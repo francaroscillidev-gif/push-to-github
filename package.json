@@ -1,16 +1,22 @@
 {
   "name": "push-to-github",
-  "version": "1.0.0",
-  "description": "CLI interattiva e automatizzata per creare repo su GitHub e pubblicare/aggiornare progetti in un click",
+  "version": "3.0.0",
+  "description": "Automated GitHub repository creation, secrets scanning, large file guard, CI/CD and push CLI for Node & Antigravity",
   "main": "src/index.js",
   "bin": {
     "push-to-github": "./bin/cli.js",
     "ptg": "./bin/cli.js"
   },
   "type": "module",
+  "files": [
+    "bin",
+    "src",
+    "assets"
+  ],
   "scripts": {
     "start": "node bin/cli.js",
-    "test": "node bin/cli.js --help"
+    "test": "node --test test/suite.test.js",
+    "doctor": "node bin/cli.js doctor"
   },
   "keywords": [
     "git",
@@ -19,9 +25,20 @@
     "cli",
     "upload",
     "push",
-    "repository"
+    "repository",
+    "antigravity",
+    "security-scanner",
+    "devops"
   ],
-  "author": "",
+  "author": "Franca Roscilli <francaroscillidev@gmail.com> (https://github.com/francaroscillidev-gif)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/francaroscillidev-gif/push-to-github.git"
+  },
+  "homepage": "https://github.com/francaroscillidev-gif/push-to-github#readme",
+  "bugs": {
+    "url": "https://github.com/francaroscillidev-gif/push-to-github/issues"
+  },
   "license": "MIT",
   "dependencies": {
     "@octokit/rest": "^21.0.2",

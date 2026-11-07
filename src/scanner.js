@@ -7,7 +7,7 @@ const SECRET_PATTERNS = [
   { name: 'GitHub Fine-grained PAT', regex: /github_pat_[A-Za-z0-9_]{82}/ },
   { name: 'OpenAI API Key', regex: /sk-[A-Za-z0-9-_]{20,}/ },
   { name: 'Anthropic API Key', regex: /sk-ant-[A-Za-z0-9-_]{20,}/ },
-  { name: 'Google Gemini / API Key', regex: /AIza[0-9A-Za-z-_]{35}/ },
+  { name: 'Google Gemini / API Key', regex: /AIza[0-9A-Za-z-_]{30,45}/ },
   { name: 'AWS Access Key ID', regex: /AKIA[0-9A-Z]{16}/ },
   { name: 'Generic Private Key', regex: /-----BEGIN (RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/ },
   { name: 'Stripe Secret/Publishable Key', regex: /(sk|pk)_(test|live)_[0-9a-zA-Z]{24,}/ },
