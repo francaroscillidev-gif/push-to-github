@@ -104,3 +104,34 @@ export async function createGitHubRelease(octokit, { owner, repo, tag, name, bod
     return response.data;
   });
 }
+
+/**
+ * Recupera l'elenco dei repository dell'utente con statistiche utili per sync e sync-all
+ */
+export async function listUserRepositories(octokit, { limit = 30 } = {}) {
+  const { data } = await octokit.repos.listForAuthenticatedUser({
+    sort: 'updated',
+    direction: 'desc',
+    per_page: limit
+  });
+  return data;
+}
+
+/**
+ * Recupera i dettagli completi e lo stato di un repo (star, fork, open issues, default branch)
+ */
+export async function getRepoOverview(octokit, owner, repo) {
+  const { data } = await octokit.repos.get({ owner, repo });
+  return {
+    name: data.name,
+    fullName: data.full_name,
+    private: data.private,
+    htmlUrl: data.html_url,
+    description: data.description,
+    stars: data.stargazers_count,
+    forks: data.forks_count,
+    openIssues: data.open_issues_count,
+    defaultBranch: data.default_branch,
+    updatedAt: data.updated_at
+  };
+}
