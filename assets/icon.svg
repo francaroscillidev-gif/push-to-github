@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+
+    <!-- Outer Rim Accent Gradient -->
+    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="40%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+
+    <!-- Rocket Core Gradient -->
+    <linearGradient id="rocketBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="40%" stop-color="#e2e8f0" />
+      <stop offset="100%" stop-color="#94a3b8" />
+    </linearGradient>
+
+    <!-- Wings Gradient -->
+    <linearGradient id="wingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+
+    <!-- Thruster Fire Gradient -->
+    <linearGradient id="flameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="45%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+
+    <!-- Git Branch Neon Gradient -->
+    <linearGradient id="gitBranchGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="50%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+
+    <!-- Glow & Shadow Filters -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.65" />
+    </filter>
+
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="intenseGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base Canvas with Dual Border -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bgGrad)" filter="url(#softShadow)" />
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="none" stroke="url(#rimGrad)" stroke-width="4.5" stroke-opacity="0.8" />
+
+  <!-- Futuristic Subtle Tech Grid Lines in Background -->
+  <g opacity="0.12" stroke="#60a5fa" stroke-width="1.2">
+    <circle cx="256" cy="256" r="190" fill="none" stroke-dasharray="4 8" />
+    <circle cx="256" cy="256" r="130" fill="none" stroke-dasharray="6 6" />
+    <line x1="80" y1="256" x2="432" y2="256" stroke-dasharray="3 6" />
+    <line x1="256" y1="80" x2="256" y2="432" stroke-dasharray="3 6" />
+  </g>
+
+  <!-- Ambient Underglow -->
+  <circle cx="256" cy="240" r="110" fill="#6366f1" opacity="0.22" filter="url(#intenseGlow)" />
+  <circle cx="200" cy="310" r="70" fill="#06b6d4" opacity="0.18" filter="url(#intenseGlow)" />
+
+  <!-- ================= Git Tree Topology Layer ================= -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Branch Paths -->
+    <path d="M 170 360 L 170 240 Q 170 190 225 190 L 320 190" 
+          fill="none" stroke="url(#gitBranchGrad)" stroke-width="7" filter="url(#neonGlow)" />
+    
+    <path d="M 170 290 Q 210 290 250 320 L 310 320" 
+          fill="none" stroke="url(#gitBranchGrad)" stroke-width="6" stroke-dasharray="6 4" opacity="0.75" />
+
+    <!-- Git Branch Nodes -->
+    <!-- Root Node -->
+    <circle cx="170" cy="360" r="14" fill="#0b0f19" stroke="#10b981" stroke-width="5" filter="url(#neonGlow)" />
+    <circle cx="170" cy="360" r="5" fill="#10b981" />
+
+    <!-- Mid Fork Node -->
+    <circle cx="170" cy="250" r="12" fill="#0b0f19" stroke="#06b6d4" stroke-width="4.5" />
+    <circle cx="170" cy="250" r="4" fill="#06b6d4" />
+
+    <!-- Secondary Branch End Node -->
+    <circle cx="310" cy="320" r="11" fill="#0b0f19" stroke="#38bdf8" stroke-width="4" />
+    <circle cx="310" cy="320" r="3.5" fill="#38bdf8" />
+  </g>
+
+  <!-- ================= Rocket Propulsion / Launch Trajectory ================= -->
+  <g transform="translate(4,-8)">
+    <!-- Jet Particle Trails -->
+    <path d="M 180 345 Q 160 375 130 395" fill="none" stroke="#f59e0b" stroke-width="3" opacity="0.6" stroke-linecap="round" />
+    <path d="M 195 360 Q 185 390 165 415" fill="none" stroke="#ef4444" stroke-width="3" opacity="0.5" stroke-linecap="round" />
+
+    <!-- Plasma Flame (Outer) -->
+    <path d="M 205 320 Q 165 375 180 415 Q 215 375 228 340 Z" 
+          fill="url(#flameGrad)" filter="url(#intenseGlow)" opacity="0.9" />
+
+    <!-- Plasma Flame (Inner Core) -->
+    <path d="M 210 324 Q 185 365 195 395 Q 218 365 224 336 Z" 
+          fill="#fef08a" opacity="0.95" />
+
+    <!-- ================= Main Rocket Aerodynamic Fuselage ================= -->
+    <!-- Left Wing -->
+    <path d="M 215 260 L 175 305 Q 185 325 210 318 L 226 288 Z" 
+          fill="url(#wingGrad)" />
+
+    <!-- Right Wing -->
+    <path d="M 276 200 L 324 212 Q 330 236 308 248 L 265 240 Z" 
+          fill="url(#wingGrad)" />
+
+    <!-- Rocket Body Core (Angled at 45° dynamic ascent) -->
+    <path d="M 335 150 C 310 120 280 145 250 178 C 220 212 200 258 206 295 L 246 312 C 280 292 318 250 342 215 C 362 186 358 165 335 150 Z" 
+          fill="url(#rocketBody)" filter="url(#softShadow)" />
+
+    <!-- Metallic Nose Cone Cap Accent -->
+    <path d="M 335 150 C 344 160 344 175 332 190 L 312 170 C 322 155 330 148 335 150 Z" 
+          fill="#38bdf8" />
+
+    <!-- Porthole Outer Bezel -->
+    <circle cx="274" cy="222" r="22" fill="#1e293b" stroke="#cbd5e1" stroke-width="3.5" />
+    <!-- Porthole Glass -->
+    <circle cx="274" cy="222" r="16" fill="#0284c7" />
+    <circle cx="274" cy="222" r="16" fill="url(#wingGrad)" opacity="0.8" />
+    <!-- Porthole Glare -->
+    <ellipse cx="270" cy="218" rx="6" ry="3.5" transform="rotate(-35 270 218)" fill="#ffffff" opacity="0.75" />
+
+    <!-- Rocket Centerline Fin / Ridge -->
+    <path d="M 285 200 L 220 288" stroke="#cbd5e1" stroke-width="2.5" opacity="0.6" stroke-linecap="round" />
+  </g>
+
+  <!-- ================= GitHub Octocat Silhouette Hologram ================= -->
+  <g transform="translate(325, 95) scale(0.24)">
+    <circle cx="128" cy="128" r="128" fill="#181717" filter="url(#intenseGlow)" stroke="#38bdf8" stroke-width="8" />
+    <path fill="#ffffff" fill-rule="evenodd" clip-rule="evenodd" d="M128 20C68.36 20 20 68.36 20 128C20 175.72 50.94 216.22 93.9 230.54C99.3 231.54 101.28 228.2 101.28 225.34C101.28 222.8 101.18 214.28 101.14 205.5C71.1 212.02 64.78 192.74 64.78 192.74C59.88 180.3 52.8 177 52.8 177C43 170.3 53.54 170.44 53.54 170.44C64.38 171.2 70.08 181.56 70.08 181.56C79.72 198.08 95.38 193.3 101.52 190.54C102.5 183.56 105.3 178.8 108.4 176.1C84.42 173.36 59.2 164.12 59.2 122.78C59.2 111.02 63.4 101.38 70.28 93.84C69.18 91.12 65.48 80.14 71.36 65.4C71.36 65.4 80.4 62.5 100.94 76.42C109.52 74.04 118.66 72.84 127.76 72.8C136.86 72.84 146 74.04 154.6 76.42C175.12 62.5 184.14 65.4 184.14 65.4C190.04 80.14 186.34 91.12 185.24 93.84C192.14 101.38 196.3 111.02 196.3 122.78C196.3 164.24 171.02 173.32 147 175.98C150.88 179.32 154.34 185.94 154.34 196.08C154.34 210.68 154.2 222.46 154.2 225.34C154.2 228.22 156.16 231.62 161.64 230.52C204.66 216.16 235.56 175.7 235.56 128C235.56 68.36 187.2 20 128 20Z" />
+  </g>
+
+  <!-- Dynamic Speed Streaks & Stellar Dust -->
+  <g fill="#ffffff" opacity="0.8">
+    <circle cx="380" cy="190" r="2.5" />
+    <circle cx="340" cy="90" r="1.5" />
+    <circle cx="140" cy="180" r="2" opacity="0.4" />
+    <circle cx="110" cy="270" r="1.8" opacity="0.5" />
+    <circle cx="410" cy="340" r="2" opacity="0.3" />
+    <polygon points="365,115 367,123 375,125 367,127 365,135 363,127 355,125 363,123" fill="#38bdf8" opacity="0.85" />
+  </g>
+
+  <!-- Modern Wordmark / Acronym Badge at Bottom -->
+  <g transform="translate(256, 436)">
+    <rect x="-64" y="-18" width="128" height="36" rx="18" fill="#1e1b4b" stroke="#6366f1" stroke-width="2" opacity="0.9" filter="url(#neonGlow)" />
+    <text x="0" y="6" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="900" fill="#38bdf8" letter-spacing="3.5">PTG</text>
+  </g>
+</svg>

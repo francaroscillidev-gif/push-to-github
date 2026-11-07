@@ -1,9 +1,18 @@
-# 🚀 push-to-github
+<div align="center">
+  <img src="assets/icon.svg" width="160" height="160" alt="push-to-github icon" />
+  <h1>🚀 push-to-github (PTG)</h1>
+  <p><strong>Automazione Intelligente & Sicurezza per Creare, Gestire e Pubblicare Progetti su GitHub</strong></p>
+</div>
 
-[![GitHub license](https://img.shields.io/github/license/francaroscillidev-gif/push-to-github?style=flat-square)](https://github.com/francaroscillidev-gif/push-to-github/blob/main/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/francaroscillidev-gif/push-to-github?style=flat-square)](https://github.com/francaroscillidev-gif/push-to-github/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues/francaroscillidev-gif/push-to-github?style=flat-square)](https://github.com/francaroscillidev-gif/push-to-github/issues)
-[![Node.js CI](https://github.com/francaroscillidev-gif/push-to-github/actions/workflows/ci.yml/badge.svg)](https://github.com/francaroscillidev-gif/push-to-github/actions)
+<p align="center">
+  <a href="https://github.com/francaroscillidev-gif/push-to-github/blob/main/LICENSE"><img src="https://img.shields.io/github/license/francaroscillidev-gif/push-to-github?style=flat-square" alt="License" /></a>
+  <a href="https://github.com/francaroscillidev-gif/push-to-github/stargazers"><img src="https://img.shields.io/github/stars/francaroscillidev-gif/push-to-github?style=flat-square" alt="Stars" /></a>
+  <a href="https://github.com/francaroscillidev-gif/push-to-github/issues"><img src="https://img.shields.io/github/issues/francaroscillidev-gif/push-to-github?style=flat-square" alt="Issues" /></a>
+  <a href="https://github.com/francaroscillidev-gif/push-to-github"><img src="https://img.shields.io/badge/version-3.0.0-blue?style=flat-square" alt="Version" /></a>
+  <a href="https://github.com/francaroscillidev-gif/push-to-github"><img src="https://img.shields.io/badge/Antigravity-Native%20Skill-6366f1?style=flat-square&logo=google" alt="Antigravity Ready" /></a>
+</p>
+
+---
 
 
 Uno strumento CLI basato su Node.js/npm per **automatizzare completamente il processo di creazione e caricamento di qualsiasi progetto su GitHub**.
