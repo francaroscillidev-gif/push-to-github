@@ -26,7 +26,8 @@ const IGNORED_PATHS = [
   '__pycache__',
   'package-lock.json',
   'yarn.lock',
-  'pnpm-lock.yaml'
+  'pnpm-lock.yaml',
+  'test'
 ];
 
 /**
